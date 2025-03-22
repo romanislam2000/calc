@@ -10,28 +10,97 @@ import Foundation
 
 class Calculator {
     
-    /// For multi-step calculation, it's helpful to persist existing result
-    var currentResult = 0;
-    
-    /// Perform Addition
-    ///
-    /// - Author: Jacktator
-    /// - Parameters:
-    ///   - no1: First number
-    ///   - no2: Second number
-    /// - Returns: The addition result
-    ///
-    /// - Warning: The result may yield Int overflow.
-    /// - SeeAlso: https://developer.apple.com/documentation/swift/int/2884663-addingreportingoverflow
-    func add(no1: Int, no2: Int) -> Int {
-        return no1 + no2;
+    func add(_ a: Int, _ b: Int) -> Int {
+        return a + b
     }
-    
+
+    func subtract(_ a: Int, _ b: Int) -> Int {
+        return a - b
+    }
+
+    func multiply(_ a: Int, _ b: Int) -> Int {
+        return a * b
+    }
+
+    func divide(_ a: Int, _ b: Int) -> Int? {
+        if b == 0 {
+            print("Error: Cannot divide by zero")
+            return nil
+        }
+        return a / b
+    }
+
+    func modulo(_ a: Int, _ b: Int) -> Int? {
+        if b == 0 {
+            print("Error: Cannot perform modulo by zero")
+            return nil
+        }
+        return a % b
+    }
+
     func calculate(args: [String]) -> String {
-        // Todo: Calculate Result from the arguments. Replace dummyResult with your actual result;
-        let dummyResult = add(no1: 1, no2: 2);
+        guard args.count >= 3 else {
+            return "Error: Invalid input. Format should be: number operator number"
+        }
+
+        var values: [Int] = []
+        var operators: [String] = []
         
-        let result = String(dummyResult);
-        return(result)
+        for (index, arg) in args.enumerated() {
+            if index % 2 == 0 {
+                if let num = Int(arg) {
+                    values.append(num)
+                } else {
+                    return "Error: Invalid number \(arg)"
+                }
+            } else {
+                if ["+", "-", "x", "/", "%"].contains(arg) {
+                    operators.append(arg)
+                } else {
+                    return "Error: Invalid operator \(arg)"
+                }
+            }
+        }
+
+        // First pass: Handle multiplication, division, modulo first
+        var i = 0
+        while i < operators.count {
+            if ["x", "/", "%"].contains(operators[i]) {
+                let lhs = values[i]
+                let rhs = values[i + 1]
+                let result: Int?
+
+                switch operators[i] {
+                case "x": result = multiply(lhs, rhs)
+                case "/": result = divide(lhs, rhs)
+                case "%": result = modulo(lhs, rhs)
+                default: result = nil
+                }
+
+                if let res = result {
+                    values[i] = res
+                    values.remove(at: i + 1)
+                    operators.remove(at: i)
+                } else {
+                    return "Error: Calculation failed"
+                }
+            } else {
+                i += 1
+            }
+        }
+
+        // Second pass: Handle addition and subtraction
+        var finalResult = values[0]
+        for j in 0..<operators.count {
+            let rhs = values[j + 1]
+            switch operators[j] {
+            case "+": finalResult = add(finalResult, rhs)
+            case "-": finalResult = subtract(finalResult, rhs)
+            default: return "Error: Unexpected error"
+            }
+        }
+
+        return String(finalResult)
     }
 }
+

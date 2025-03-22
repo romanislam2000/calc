@@ -8,18 +8,13 @@
 
 import Foundation
 
-var args = ProcessInfo.processInfo.arguments
-args.removeFirst() // remove the name of the program
+let args = ProcessInfo.processInfo.arguments.dropFirst()
 
-// Retrieve User Input
-//let no1 = args[0]; // Sample Code Only! Update Required!
-//let operator = args[1]; // Sample Code Only! Update Required!
-//let no2 = args[2]; // Sample Code Only! Update Required!
+if args.isEmpty {
+    print("Usage: ./calc number operator number [operator number]...")
+    exit(1)
+}
 
-// Initialize a Calculator object
-let calculator = Calculator();
-
-// Calculate the result
-let result = calculator.add(no1: 1, no2: 1);
-
+let calculator = Calculator()
+let result = calculator.calculate(args: Array(args))
 print(result)
