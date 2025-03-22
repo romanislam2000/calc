@@ -9,8 +9,9 @@
 import Foundation
 
 class Calculator {
-    
+
     // MARK: - Arithmetic Operations with Overflow Check
+
     func add(_ a: Int, _ b: Int) -> Int {
         let result = a + b
         checkOverflow(result)
@@ -49,7 +50,6 @@ class Calculator {
         return result
     }
 
-    // MARK: - Overflow Protection (Int32 Boundaries)
     func checkOverflow(_ result: Int) {
         if result > Int32.max || result < Int32.min {
             fputs("Error: Integer overflow\n", stderr)
@@ -57,9 +57,22 @@ class Calculator {
         }
     }
 
-    // MARK: - Main Calculate Function
+    // MARK: - Main Calculation Logic
+
     func calculate(args: [String]) -> String {
-        if args.count < 1 || args.count % 2 == 0 {
+        // ✅ Single number input (e.g., ["42"])
+        if args.count == 1 {
+            let trimmed = args[0].trimmingCharacters(in: .whitespaces)
+            if let number = Int(trimmed), number >= Int32.min, number <= Int32.max {
+                return String(number)
+            } else {
+                fputs("Error: Invalid or out-of-bounds number '\(trimmed)'\n", stderr)
+                exit(1)
+            }
+        }
+
+        // ✅ Validate basic format
+        if args.count < 3 || args.count % 2 == 0 {
             fputs("Error: Invalid input format\n", stderr)
             exit(1)
         }
@@ -71,7 +84,7 @@ class Calculator {
             let trimmed = token.trimmingCharacters(in: .whitespaces)
 
             if index % 2 == 0 {
-                // Expect number (can be signed)
+                // Expect a number
                 if let number = Int(trimmed), number >= Int32.min, number <= Int32.max {
                     numbers.append(number)
                 } else {
@@ -79,9 +92,11 @@ class Calculator {
                     exit(1)
                 }
             } else {
-                // Expect operator
-                if ["+", "-", "x", "/", "%"].contains(trimmed) {
-                    operators.append(trimmed)
+                // Accept both "x" and "×"
+                let validOps = ["+", "-", "x", "×", "/", "%"]
+                if validOps.contains(trimmed) {
+                    // Normalize × to x
+                    operators.append(trimmed == "×" ? "x" : trimmed)
                 } else {
                     fputs("Error: Invalid operator '\(trimmed)'\n", stderr)
                     exit(1)
@@ -112,7 +127,7 @@ class Calculator {
             }
         }
 
-        // Step 2: Handle + and -
+        // Step 2: Handle + -
         var result = numbers[0]
         for j in 0..<operators.count {
             let rhs = numbers[j + 1]

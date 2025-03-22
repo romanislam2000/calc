@@ -14,7 +14,6 @@ if args.isEmpty {
     print("Usage: ./calc number operator number [operator number]...")
     exit(1)
 }
-
 let calculator = Calculator()
 let result = calculator.calculate(args: Array(args))
 print(result)

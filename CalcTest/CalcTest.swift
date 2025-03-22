@@ -319,14 +319,15 @@ class CalcTest: XCTestCase {
         
         var nums: [Int] = []
         var args: [String] = []
-        for _ in 0...10 {
-            let n = randomSource.nextInt(upperBound:20)+1
+        for i in 0..<10 {
+            let n = randomSource.nextInt(upperBound: 5) + 1
             nums.append(n)
-            if args.count > 0 {
+            args.append(String(n))
+            if i < 9 {
                 args.append("x")
             }
-            args.append(String(n))
         }
+
         let sum: Int = nums.reduce(1) { (a: Int, b: Int) -> Int in
             a * b
         }
